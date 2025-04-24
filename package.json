@@ -12,7 +12,9 @@
     "seed": "node --loader esbuild-register/loader -r esbuild-register ./src/db/seed/index.ts"
   },
   "dependencies": {
+    "@types/lodash": "^4.17.16",
     "drizzle-orm": "^0.32.1",
+    "lodash": "^4.17.21",
     "next": "^14.2.19",
     "postgres": "^3.4.4",
     "react": "^18.3.1",

@@ -1,56 +1,65 @@
 "use client";
 
-import { Advocate } from "../types/advocate";
-import { useEffect, useState } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
+import debounce from "lodash/debounce"; 
+import type { Advocate } from "../types/advocate";
 
 export default function Home() {
   const [advocates, setAdvocates] = useState<Advocate[]>([]);
-  const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
+  const [query, setQuery] = useState(""); 
+  const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchAdvocates = async () => {
-      try {
-        const response = await fetch("/api/advocates");
-        if (!response.ok) {
-          throw new Error('Failed to fetch advocates');
+
+    const debouncedSetSearch = useRef(
+      debounce((val: string) => {
+        setSearchTerm(val);
+      }, 300)
+    ).current;
+  
+    useEffect(() => {
+      (async () => {
+        try {
+          const res = await fetch("/api/advocates");
+          if (!res.ok) throw new Error("Network response not OK");
+          const json = await res.json();
+          setAdvocates(json.data);
+        } catch (error) {
+          console.error(error);
+          setError("Failed to load advocates. Please try again.");
         }
-        const data = await response.json();
-        setAdvocates(data.data);
-        setFilteredAdvocates(data.data);
-      } catch (error) {
-        setError('Failed to load advocates. Please try again later.');
-        console.error('Error fetching advocates:', error);
-      }
+      })();
+  
+      return () => {
+        debouncedSetSearch.cancel();
+      };
+    }, [debouncedSetSearch]);
+  
+    const filteredAdvocates = useMemo(() => {
+      if (!searchTerm) return advocates;
+      const q = searchTerm.toLowerCase();
+      return advocates.filter((a) => {
+        return (
+          a.firstName.toLowerCase().includes(q) ||
+          a.lastName.toLowerCase().includes(q) ||
+          a.city.toLowerCase().includes(q) ||
+          a.degree.toLowerCase().includes(q) ||
+          a.yearsOfExperience.toString().includes(q) ||
+          a.specialties.some((s) => s.toLowerCase().includes(q))
+        );
+      });
+    }, [advocates, searchTerm]);
+  
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setQuery(e.target.value);
+      debouncedSetSearch(e.target.value);
     };
-
-    fetchAdvocates();
-  }, []);
-
-  const onChange = (e) => {
-    const searchTerm = e.target.value;
-
-    document.getElementById("search-term").innerHTML = searchTerm;
-
-    console.log("filtering advocates...");
-    const filteredAdvocates = advocates.filter((advocate) => {
-      return (
-        advocate.firstName.includes(searchTerm) ||
-        advocate.lastName.includes(searchTerm) ||
-        advocate.city.includes(searchTerm) ||
-        advocate.degree.includes(searchTerm) ||
-        advocate.specialties.includes(searchTerm) ||
-        advocate.yearsOfExperience.includes(searchTerm)
-      );
-    });
-
-    setFilteredAdvocates(filteredAdvocates);
-  };
-
-  const onClick = () => {
-    console.log(advocates);
-    setFilteredAdvocates(advocates);
-  };
+  
+    const handleReset = () => {
+      debouncedSetSearch.cancel();
+      setQuery("");
+      setSearchTerm("");
+    };
 
   return (
     <main style={{ margin: "24px" }}>
@@ -62,8 +71,13 @@ export default function Home() {
         <p>
           Searching for: <span id="search-term"></span>
         </p>
-        <input style={{ border: "1px solid black" }} onChange={onChange} />
-        <button onClick={onClick}>Reset Search</button>
+        <input 
+          style={{ border: "1px solid black" }} 
+          value={query}
+          onChange={handleChange}
+          placeholder="Search advocates..."
+        />
+        <button onClick={handleReset}>Reset Search</button>
       </div>
       <br />
       <br />
