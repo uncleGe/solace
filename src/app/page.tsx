@@ -97,20 +97,22 @@ export default function Home() {
           <th>Phone Number</th>
         </thead>
         <tbody>
-          {filteredAdvocates.map((advocate) => {
+          {filteredAdvocates.map((a) => {
             return (
-              <tr>
-                <td>{advocate.firstName}</td>
-                <td>{advocate.lastName}</td>
-                <td>{advocate.city}</td>
-                <td>{advocate.degree}</td>
+              <tr key={a.id}>                
+                <td>{a.firstName}</td>
+                <td>{a.lastName}</td>
+                <td>{a.city}</td>
+                <td>{a.degree}</td>
                 <td>
-                  {advocate.specialties.map((s) => (
-                    <div>{s}</div>
-                  ))}
+                  <ul>
+                    {a.specialties.map((s, i) => (
+                      <li key={i}>{s}</li>
+                    ))}
+                  </ul>
                 </td>
-                <td>{advocate.yearsOfExperience}</td>
-                <td>{advocate.phoneNumber}</td>
+                <td>{a.yearsOfExperience}</td>
+                <td>{a.phoneNumber}</td>
               </tr>
             );
           })}
