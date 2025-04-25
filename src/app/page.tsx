@@ -62,32 +62,32 @@ export default function Home() {
     };
 
   return (
-    <main style={{ margin: "24px" }}>
-      <h1>Solace Advocates</h1>
-      <br />
-      <br />
-      <div>
-        <p>Search</p>
-        <p>
-          Searching for: <span id="search-term"></span>
-        </p>
-        <input 
-          style={{ border: "1px solid black" }} 
+    <main className="advocates-container">
+      <h1 className="text-2xl font-semibold mb-4">Solace Advocates</h1>
+
+      <div className="advocates-search">
+        <label htmlFor="search" className="sr-only">
+          Search advocates
+        </label>
+        <input
+          id="search"
+          type="text"
           value={query}
           onChange={handleChange}
-          placeholder="Search advocates..."
+          placeholder="Name, city, specialty…"
+          className="advocates-input"
         />
-        <button onClick={handleReset}>Reset Search</button>
+        <button onClick={handleReset} className="advocates-reset">
+          Reset
+        </button>
       </div>
-      <br />
-      <br />
 
       {error && (
         <div style={{ color: 'red' }}>{error}</div>
       )}
       
-      <table>
-        <thead>
+      <table className="advocates-table">
+        <thead className="advocates-table-head">
           <tr>
             <th>First Name</th>
             <th>Last Name</th>
@@ -99,25 +99,23 @@ export default function Home() {
           </tr>
         </thead>
         <tbody>
-          {filteredAdvocates.map((a) => {
-            return (
-              <tr key={a.id}>                
-                <td>{a.firstName}</td>
-                <td>{a.lastName}</td>
-                <td>{a.city}</td>
-                <td>{a.degree}</td>
-                <td>
-                  <ul>
-                    {a.specialties.map((s, i) => (
-                      <li key={i}>{s}</li>
-                    ))}
-                  </ul>
-                </td>
-                <td>{a.yearsOfExperience}</td>
-                <td>{a.phoneNumber}</td>
-              </tr>
-            );
-          })}
+          {filteredAdvocates.map((a) => (
+            <tr key={a.id} className="advocates-table-row">             
+              <td>{a.firstName}</td>
+              <td>{a.lastName}</td>
+              <td>{a.city}</td>
+              <td>{a.degree}</td>
+              <td>
+                <ul>
+                  {a.specialties.map((s, i) => (
+                    <li key={i}>{s}</li>
+                  ))}
+                </ul>
+              </td>
+              <td>{a.yearsOfExperience}</td>
+              <td>{a.phoneNumber}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </main>
